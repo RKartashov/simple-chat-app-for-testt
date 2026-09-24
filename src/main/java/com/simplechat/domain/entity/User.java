@@ -1,4 +1,4 @@
-package com.simplechat.user;
+package com.simplechat.domain.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,7 +1,10 @@
-package com.simplechat.user;
+package com.simplechat.service;
 
+import com.simplechat.domain.entity.User;
 import com.simplechat.exception.ApiException;
+import com.simplechat.domain.repository.UserRepository;
 import com.simplechat.security.AuthPrincipal;
+import com.simplechat.rest.dto.UserDto;
 import com.simplechat.websocket.WebSocketSessionRegistry;
 import java.util.Comparator;
 import java.util.List;

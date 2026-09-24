@@ -1,7 +1,9 @@
-package com.simplechat.session;
+package com.simplechat.domain.repository;
 
 import java.time.Instant;
 import java.util.Optional;
+
+import com.simplechat.domain.entity.AuthSession;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

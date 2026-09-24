@@ -1,8 +1,12 @@
-package com.simplechat.message;
+package com.simplechat.service;
 
+import com.simplechat.domain.entity.ChatMessage;
+import com.simplechat.domain.entity.ChatMessageStatus;
 import com.simplechat.exception.ApiException;
-import com.simplechat.user.User;
-import com.simplechat.user.UserRepository;
+import com.simplechat.domain.entity.User;
+import com.simplechat.rest.dto.MessageDto;
+import com.simplechat.domain.repository.ChatMessageRepository;
+import com.simplechat.domain.repository.UserRepository;
 import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class MessageService {
+public class ChatMessageService {
 
     private final ChatMessageRepository chatMessageRepository;
     private final UserRepository userRepository;
@@ -28,30 +32,30 @@ public class MessageService {
         message.setSender(sender);
         message.setRecipient(recipient);
         message.setText(text);
-        message.setStatus(MessageStatus.SENT);
+        message.setStatus(ChatMessageStatus.SENT);
         message.setCreatedAt(Instant.now());
         return chatMessageRepository.save(message);
     }
 
     @Transactional
     public ChatMessage markDelivered(ChatMessage message) {
-        message.setStatus(MessageStatus.DELIVERED);
+        message.setStatus(ChatMessageStatus.DELIVERED);
         return chatMessageRepository.save(message);
     }
 
     @Transactional
     public List<ChatMessage> deliverPending(Long recipientId) {
         List<ChatMessage> pending =
-                chatMessageRepository.findPendingForRecipient(recipientId, MessageStatus.SENT);
-        pending.forEach(message -> message.setStatus(MessageStatus.DELIVERED));
+                chatMessageRepository.findPendingForRecipient(recipientId, ChatMessageStatus.SENT);
+        pending.forEach(message -> message.setStatus(ChatMessageStatus.DELIVERED));
         return chatMessageRepository.saveAll(pending);
     }
 
     @Transactional
     public List<ChatMessage> markConversationRead(Long readerId, Long peerId) {
         List<ChatMessage> unread = chatMessageRepository.findIncomingWithStatuses(
-                peerId, readerId, List.of(MessageStatus.SENT, MessageStatus.DELIVERED));
-        unread.forEach(message -> message.setStatus(MessageStatus.READ));
+                peerId, readerId, List.of(ChatMessageStatus.SENT, ChatMessageStatus.DELIVERED));
+        unread.forEach(message -> message.setStatus(ChatMessageStatus.READ));
         return chatMessageRepository.saveAll(unread);
     }
 

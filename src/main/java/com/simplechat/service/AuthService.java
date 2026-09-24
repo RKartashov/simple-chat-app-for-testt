@@ -1,11 +1,12 @@
-package com.simplechat.auth;
+package com.simplechat.service;
 
+import com.simplechat.rest.dto.AuthRequest;
+import com.simplechat.rest.dto.AuthResponse;
 import com.simplechat.exception.ApiException;
 import com.simplechat.security.JwtService.IssuedToken;
-import com.simplechat.session.AuthSessionService;
-import com.simplechat.user.User;
-import com.simplechat.user.UserDto;
-import com.simplechat.user.UserRepository;
+import com.simplechat.domain.entity.User;
+import com.simplechat.rest.dto.UserDto;
+import com.simplechat.domain.repository.UserRepository;
 import com.simplechat.websocket.WebSocketSessionRegistry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

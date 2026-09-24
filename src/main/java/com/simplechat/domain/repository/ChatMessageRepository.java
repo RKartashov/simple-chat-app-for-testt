@@ -1,7 +1,10 @@
-package com.simplechat.message;
+package com.simplechat.domain.repository;
 
 import java.util.Collection;
 import java.util.List;
+
+import com.simplechat.domain.entity.ChatMessage;
+import com.simplechat.domain.entity.ChatMessageStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,7 +30,7 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
             order by m.createdAt asc, m.id asc
             """)
     List<ChatMessage> findPendingForRecipient(
-            @Param("recipientId") Long recipientId, @Param("status") MessageStatus status);
+            @Param("recipientId") Long recipientId, @Param("status") ChatMessageStatus status);
 
     @Query("""
             select m from ChatMessage m
@@ -40,5 +43,5 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     List<ChatMessage> findIncomingWithStatuses(
             @Param("senderId") Long senderId,
             @Param("recipientId") Long recipientId,
-            @Param("statuses") Collection<MessageStatus> statuses);
+            @Param("statuses") Collection<ChatMessageStatus> statuses);
 }

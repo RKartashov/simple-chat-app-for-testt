@@ -1,8 +1,8 @@
 package com.simplechat.websocket;
 
-import com.simplechat.message.ChatMessage;
-import com.simplechat.message.MessageDto;
-import com.simplechat.message.MessageService;
+import com.simplechat.domain.entity.ChatMessage;
+import com.simplechat.rest.dto.MessageDto;
+import com.simplechat.service.ChatMessageService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import tools.jackson.databind.json.JsonMapper;
 @RequiredArgsConstructor
 public class ChatRealtimeService {
 
-    private final MessageService messageService;
+    private final ChatMessageService messageService;
     private final WebSocketSessionRegistry sessionRegistry;
     private final JsonMapper jsonMapper;
 

@@ -1,6 +1,5 @@
-package com.simplechat.session;
+package com.simplechat.domain.entity;
 
-import com.simplechat.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

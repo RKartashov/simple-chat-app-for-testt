@@ -2,6 +2,7 @@ package com.simplechat.websocket;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.simplechat.rest.dto.MessageDto;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -23,7 +24,7 @@ public record WsFrame(
         return new WsFrame("chat", null, null, toUserId, null, null, null, text, null, null, null, null);
     }
 
-    public static WsFrame message(com.simplechat.message.MessageDto dto) {
+    public static WsFrame message(MessageDto dto) {
         return new WsFrame(
                 "message",
                 dto.id(),

@@ -1,5 +1,8 @@
-package com.simplechat.auth;
+package com.simplechat.rest.controller;
 
+import com.simplechat.rest.dto.AuthRequest;
+import com.simplechat.rest.dto.AuthResponse;
+import com.simplechat.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

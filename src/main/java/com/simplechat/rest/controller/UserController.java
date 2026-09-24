@@ -1,7 +1,10 @@
-package com.simplechat.user;
+package com.simplechat.rest.controller;
 
 import com.simplechat.security.AuthPrincipal;
 import java.util.List;
+
+import com.simplechat.rest.dto.UserDto;
+import com.simplechat.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;

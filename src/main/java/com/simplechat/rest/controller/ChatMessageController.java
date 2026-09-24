@@ -1,5 +1,7 @@
-package com.simplechat.message;
+package com.simplechat.rest.controller;
 
+import com.simplechat.rest.dto.MessageDto;
+import com.simplechat.service.ChatMessageService;
 import com.simplechat.security.AuthPrincipal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -12,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/messages")
 @RequiredArgsConstructor
-public class MessageController {
+public class ChatMessageController {
 
-    private final MessageService messageService;
+    private final ChatMessageService messageService;
 
     @GetMapping("/{peerId}")
     public List<MessageDto> history(@AuthenticationPrincipal AuthPrincipal current, @PathVariable Long peerId) {

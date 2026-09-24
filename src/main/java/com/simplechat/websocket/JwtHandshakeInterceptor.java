@@ -1,7 +1,7 @@
 package com.simplechat.websocket;
 
 import com.simplechat.security.AuthPrincipal;
-import com.simplechat.session.AuthSessionService;
+import com.simplechat.service.AuthSessionService;
 import io.jsonwebtoken.JwtException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;

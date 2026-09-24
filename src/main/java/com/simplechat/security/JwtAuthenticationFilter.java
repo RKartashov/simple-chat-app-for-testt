@@ -1,6 +1,6 @@
 package com.simplechat.security;
 
-import com.simplechat.session.AuthSessionService;
+import com.simplechat.service.AuthSessionService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

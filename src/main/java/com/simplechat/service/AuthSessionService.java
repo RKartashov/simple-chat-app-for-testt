@@ -1,9 +1,11 @@
-package com.simplechat.session;
+package com.simplechat.service;
 
+import com.simplechat.domain.entity.AuthSession;
+import com.simplechat.domain.repository.AuthSessionRepository;
 import com.simplechat.security.AuthPrincipal;
 import com.simplechat.security.JwtService;
 import com.simplechat.security.JwtService.IssuedToken;
-import com.simplechat.user.User;
+import com.simplechat.domain.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import java.time.Instant;

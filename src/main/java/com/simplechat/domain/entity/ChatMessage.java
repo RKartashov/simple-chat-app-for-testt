@@ -1,6 +1,5 @@
-package com.simplechat.message;
+package com.simplechat.domain.entity;
 
-import com.simplechat.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -48,7 +47,7 @@ public class ChatMessage {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 16)
-    private MessageStatus status;
+    private ChatMessageStatus status;
 
     @Column(nullable = false)
     private Instant createdAt;
