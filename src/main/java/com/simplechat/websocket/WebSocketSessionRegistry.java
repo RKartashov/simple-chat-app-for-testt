@@ -13,18 +13,19 @@ import org.springframework.web.socket.WebSocketSession;
 @Component
 public class WebSocketSessionRegistry {
 
-    private final ConcurrentHashMap<Long, CopyOnWriteArraySet<WebSocketSession>> sessionsByUser =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, CopyOnWriteArraySet<WebSocketSession>> sessionsByUser = new ConcurrentHashMap<>();
 
     public void register(Long userId, WebSocketSession session) {
         sessionsByUser.computeIfAbsent(userId, ignored -> new CopyOnWriteArraySet<>()).add(session);
     }
 
     public void unregister(Long userId, WebSocketSession session) {
-        sessionsByUser.computeIfPresent(userId, (ignored, sessions) -> {
-            sessions.remove(session);
-            return sessions.isEmpty() ? null : sessions;
-        });
+        sessionsByUser.computeIfPresent(
+            userId, (ignored, sessions) -> {
+                sessions.remove(session);
+                return sessions.isEmpty() ? null : sessions;
+            }
+        );
     }
 
     public boolean isOnline(Long userId) {
@@ -67,4 +68,5 @@ public class WebSocketSessionRegistry {
             }
         }
     }
+
 }

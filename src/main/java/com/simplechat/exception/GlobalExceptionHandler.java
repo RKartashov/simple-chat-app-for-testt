@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     public record ErrorResponse(Instant timestamp, int status, String error, String message) {
+
     }
 
     @ExceptionHandler(ApiException.class)
@@ -28,8 +29,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.joining("; "));
+                           .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                           .collect(Collectors.joining("; "));
         return build(HttpStatus.BAD_REQUEST.value(), message);
     }
 
@@ -42,6 +43,7 @@ public class GlobalExceptionHandler {
         HttpStatus httpStatus = HttpStatus.resolve(status);
         String error = httpStatus != null ? httpStatus.getReasonPhrase() : "Error";
         return ResponseEntity.status(status)
-                .body(new ErrorResponse(Instant.now(), status, error, message));
+                             .body(new ErrorResponse(Instant.now(), status, error, message));
     }
+
 }

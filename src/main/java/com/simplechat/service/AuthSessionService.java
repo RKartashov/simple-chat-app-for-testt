@@ -8,11 +8,10 @@ import com.simplechat.security.JwtService;
 import com.simplechat.security.JwtService.IssuedToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -38,9 +37,10 @@ public class AuthSessionService {
         Claims claims = jwtService.parse(token);
         String jti = claims.getId();
         AuthSession session = authSessionRepository
-                .findActiveByTokenJti(jti, Instant.now())
-                .orElseThrow(() -> new JwtException("Session is not active"));
+            .findActiveByTokenJti(jti, Instant.now())
+            .orElseThrow(() -> new JwtException("Session is not active"));
         User user = session.getUser();
         return new AuthPrincipal(user.getId(), user.getNickname(), jti);
     }
+
 }

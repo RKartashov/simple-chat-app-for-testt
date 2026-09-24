@@ -111,4 +111,5 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             log.warn("Failed to send WebSocket error frame", ex);
         }
     }
+
 }

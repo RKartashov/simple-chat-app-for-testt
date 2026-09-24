@@ -2,11 +2,11 @@ package com.simplechat.service;
 
 import com.simplechat.domain.entity.ChatMessage;
 import com.simplechat.domain.entity.ChatMessageStatus;
-import com.simplechat.exception.ApiException;
 import com.simplechat.domain.entity.User;
-import com.simplechat.rest.dto.MessageDto;
 import com.simplechat.domain.repository.ChatMessageRepository;
 import com.simplechat.domain.repository.UserRepository;
+import com.simplechat.exception.ApiException;
+import com.simplechat.rest.dto.MessageDto;
 import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -39,12 +39,6 @@ public class ChatMessageService {
     }
 
     @Transactional
-    public ChatMessage markDelivered(ChatMessage message) {
-        message.setStatus(ChatMessageStatus.DELIVERED);
-        return chatMessageRepository.save(message);
-    }
-
-    @Transactional
     public List<ChatMessage> deliverPending(Long recipientId) {
         List<ChatMessage> pending = chatMessageRepository.findPendingForRecipient(recipientId, ChatMessageStatus.SENT);
         pending.forEach(message -> message.setStatus(ChatMessageStatus.DELIVERED));
@@ -54,7 +48,7 @@ public class ChatMessageService {
     @Transactional
     public List<ChatMessage> markConversationRead(Long readerId, Long peerId) {
         List<ChatMessage> unread = chatMessageRepository.findIncomingWithStatuses(
-                peerId, readerId, List.of(ChatMessageStatus.SENT, ChatMessageStatus.DELIVERED));
+            peerId, readerId, List.of(ChatMessageStatus.SENT, ChatMessageStatus.DELIVERED));
         unread.forEach(message -> message.setStatus(ChatMessageStatus.READ));
         return chatMessageRepository.saveAll(unread);
     }
@@ -63,13 +57,14 @@ public class ChatMessageService {
     public List<MessageDto> history(Long currentUserId, Long peerId) {
         requireUser(peerId);
         return chatMessageRepository.findConversation(currentUserId, peerId).stream()
-                .map(MessageDto::from)
-                .toList();
+                                    .map(MessageDto::from)
+                                    .toList();
     }
 
     private User requireUser(Long id) {
         return userRepository
-                .findById(id)
-                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND.value(), "User not found"));
+            .findById(id)
+            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND.value(), "User not found"));
     }
+
 }

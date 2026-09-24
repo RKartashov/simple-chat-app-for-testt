@@ -17,11 +17,11 @@ import lombok.Setter;
 
 @Entity
 @Table(
-        name = "sessions",
-        indexes = {
-            @Index(name = "idx_sessions_jti", columnList = "token_jti", unique = true),
-            @Index(name = "idx_sessions_user", columnList = "user_id")
-        })
+    name = "sessions",
+    indexes = {
+        @Index(name = "idx_sessions_jti", columnList = "token_jti", unique = true),
+        @Index(name = "idx_sessions_user", columnList = "user_id")
+    })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -43,4 +43,5 @@ public class AuthSession {
 
     @Column(nullable = false)
     private Instant expiresAt;
+
 }

@@ -1,8 +1,8 @@
 package com.simplechat.rest.controller;
 
 import com.simplechat.rest.dto.MessageDto;
-import com.simplechat.service.ChatMessageService;
 import com.simplechat.security.AuthPrincipal;
+import com.simplechat.service.ChatMessageService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,4 +22,5 @@ public class ChatMessageController {
     public List<MessageDto> history(@AuthenticationPrincipal AuthPrincipal current, @PathVariable Long peerId) {
         return messageService.history(current.id(), peerId);
     }
+
 }

@@ -1,12 +1,12 @@
 package com.simplechat.service;
 
+import com.simplechat.domain.entity.User;
+import com.simplechat.domain.repository.UserRepository;
+import com.simplechat.exception.ApiException;
 import com.simplechat.rest.dto.AuthRequest;
 import com.simplechat.rest.dto.AuthResponse;
-import com.simplechat.exception.ApiException;
-import com.simplechat.security.JwtService.IssuedToken;
-import com.simplechat.domain.entity.User;
 import com.simplechat.rest.dto.UserDto;
-import com.simplechat.domain.repository.UserRepository;
+import com.simplechat.security.JwtService.IssuedToken;
 import com.simplechat.websocket.WebSocketSessionRegistry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -38,8 +38,8 @@ public class AuthService {
     @Transactional
     public AuthResponse login(AuthRequest request) {
         User user = userRepository
-                .findByNicknameIgnoreCase(request.nickname())
-                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED.value(), "Invalid nickname or password"));
+            .findByNicknameIgnoreCase(request.nickname())
+            .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED.value(), "Invalid nickname or password"));
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new ApiException(HttpStatus.UNAUTHORIZED.value(), "Invalid nickname or password");
         }
@@ -48,7 +48,9 @@ public class AuthService {
 
     private AuthResponse toResponse(User user, IssuedToken issued) {
         return new AuthResponse(
-                issued.token(),
-                new UserDto(user.getId(), user.getNickname(), sessionRegistry.isOnline(user.getId())));
+            issued.token(),
+            new UserDto(user.getId(), user.getNickname(), sessionRegistry.isOnline(user.getId()))
+        );
     }
+
 }

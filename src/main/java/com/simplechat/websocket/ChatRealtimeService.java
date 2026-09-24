@@ -72,4 +72,5 @@ public class ChatRealtimeService {
             throw new IllegalStateException("Failed to serialize WebSocket frame", ex);
         }
     }
+
 }

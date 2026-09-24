@@ -3,6 +3,7 @@ package com.simplechat.websocket;
 import com.simplechat.security.AuthPrincipal;
 import com.simplechat.service.AuthSessionService;
 import io.jsonwebtoken.JwtException;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -10,8 +11,6 @@ import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
-
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -21,10 +20,11 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
     @Override
     public boolean beforeHandshake(
-            ServerHttpRequest request,
-            ServerHttpResponse response,
-            WebSocketHandler wsHandler,
-            Map<String, Object> attributes) {
+        ServerHttpRequest request,
+        ServerHttpResponse response,
+        WebSocketHandler wsHandler,
+        Map<String, Object> attributes
+    ) {
         if (!(request instanceof ServletServerHttpRequest servletRequest)) {
             return false;
         }
@@ -43,10 +43,12 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
     @Override
     public void afterHandshake(
-            ServerHttpRequest request,
-            ServerHttpResponse response,
-            WebSocketHandler wsHandler,
-            Exception exception) {
+        ServerHttpRequest request,
+        ServerHttpResponse response,
+        WebSocketHandler wsHandler,
+        Exception exception
+    ) {
         // no-op
     }
+
 }

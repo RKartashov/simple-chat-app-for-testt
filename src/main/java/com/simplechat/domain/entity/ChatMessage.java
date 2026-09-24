@@ -19,12 +19,12 @@ import lombok.Setter;
 
 @Entity
 @Table(
-        name = "messages",
-        indexes = {
-            @Index(name = "idx_messages_sender_recipient_created", columnList = "sender_id, recipient_id, created_at"),
-            @Index(name = "idx_messages_recipient_sender_created", columnList = "recipient_id, sender_id, created_at"),
-            @Index(name = "idx_messages_recipient_status", columnList = "recipient_id, status")
-        })
+    name = "messages",
+    indexes = {
+        @Index(name = "idx_messages_sender_recipient_created", columnList = "sender_id, recipient_id, created_at"),
+        @Index(name = "idx_messages_recipient_sender_created", columnList = "recipient_id, sender_id, created_at"),
+        @Index(name = "idx_messages_recipient_status", columnList = "recipient_id, status")
+    })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -51,4 +51,5 @@ public class ChatMessage {
 
     @Column(nullable = false)
     private Instant createdAt;
+
 }
