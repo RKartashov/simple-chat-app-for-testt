@@ -22,17 +22,18 @@ public class ChatMessageService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ChatMessage createSent(Long senderId, Long recipientId, String text) {
+    public ChatMessage createMessage(Long senderId, Long recipientId, String text, boolean isDelivered) {
         if (senderId.equals(recipientId)) {
             throw new ApiException(HttpStatus.BAD_REQUEST.value(), "Cannot send a message to yourself");
         }
+
         User sender = requireUser(senderId);
         User recipient = requireUser(recipientId);
         ChatMessage message = new ChatMessage();
         message.setSender(sender);
         message.setRecipient(recipient);
         message.setText(text);
-        message.setStatus(ChatMessageStatus.SENT);
+        message.setStatus(isDelivered ? ChatMessageStatus.DELIVERED : ChatMessageStatus.SENT);
         message.setCreatedAt(Instant.now());
         return chatMessageRepository.save(message);
     }
@@ -45,8 +46,7 @@ public class ChatMessageService {
 
     @Transactional
     public List<ChatMessage> deliverPending(Long recipientId) {
-        List<ChatMessage> pending =
-                chatMessageRepository.findPendingForRecipient(recipientId, ChatMessageStatus.SENT);
+        List<ChatMessage> pending = chatMessageRepository.findPendingForRecipient(recipientId, ChatMessageStatus.SENT);
         pending.forEach(message -> message.setStatus(ChatMessageStatus.DELIVERED));
         return chatMessageRepository.saveAll(pending);
     }

@@ -85,7 +85,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         if (frame.text().length() > 4000) {
             throw new ApiException(400, "Message is too long");
         }
-        chatRealtimeService.sendChat(principal.id(), frame.toUserId(), frame.text().trim());
+        chatRealtimeService.sendChatMessage(principal.id(), frame.toUserId(), frame.text().trim());
     }
 
     private void handleRead(AuthPrincipal principal, WsFrame frame) {

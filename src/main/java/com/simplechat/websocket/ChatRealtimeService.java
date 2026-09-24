@@ -3,7 +3,9 @@ package com.simplechat.websocket;
 import com.simplechat.domain.entity.ChatMessage;
 import com.simplechat.rest.dto.MessageDto;
 import com.simplechat.service.ChatMessageService;
+
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,13 +20,14 @@ public class ChatRealtimeService {
     private final JsonMapper jsonMapper;
 
     @Transactional
-    public void sendChat(Long fromUserId, Long toUserId, String text) {
-        ChatMessage saved = messageService.createSent(fromUserId, toUserId, text);
-        if (sessionRegistry.isOnline(toUserId)) {
-            saved = messageService.markDelivered(saved);
-            pushMessage(toUserId, saved);
+    public void sendChatMessage(Long fromUserId, Long toUserId, String text) {
+        boolean deliverImmediately = sessionRegistry.isOnline(toUserId);
+        ChatMessage message = messageService.createMessage(fromUserId, toUserId, text, deliverImmediately);
+
+        if (deliverImmediately) {
+            pushMessage(toUserId, message);
         }
-        pushMessage(fromUserId, saved);
+        pushMessage(fromUserId, message);
     }
 
     @Transactional
