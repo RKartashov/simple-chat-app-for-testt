@@ -8,14 +8,13 @@
 
 Пакеты:
 
-- `auth` — регистрация, вход, выдача JWT
-- `user` — пользователи и список контактов
-- `session` — таблица `sessions` и проверка жизни JWT
-- `message` — история и статусы сообщений
-- `websocket` — сессии в памяти, доставка и presence
-- `security` — JWT-фильтр и BCrypt
-- `config` — Security, WebSocket, JWT properties
+- `config` — спринговые конфиги Security и WebSocket, JWT properties
+- `domain` — доменный слой - jpa сущности и репозитории
 - `exception` — единая обработка ошибок API
+- `rest` - api-слой - рест-контроллеры и дто
+- `security` — JWT-фильтр
+- `service` — сервисные бины
+- `websocket` — сессии в памяти, доставка и presence
 
 Онлайн-статус определяется наличием активной WebSocket-сессии в потокобезопасном `ConcurrentHashMap`. Сообщения и пользователи хранятся в PostgreSQL через Spring Data JPA.
 
