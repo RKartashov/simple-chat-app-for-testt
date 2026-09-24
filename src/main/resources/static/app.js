@@ -74,12 +74,7 @@ function saveSession(token, user) {
 }
 
 function logout(forget = true) {
-  if (state.socket) {
-    state.socket.onclose = null;
-    state.socket.close();
-    state.socket = null;
-  }
-  clearTimeout(state.reconnectTimer);
+  closeConnection();
   if (forget) {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -90,8 +85,17 @@ function logout(forget = true) {
   state.users = [];
   state.messages = [];
   setConnectionStatus(false);
-  els.app.hidden = true;
-  els.auth.hidden = false;
+  els.app.style.display = 'none';
+  els.auth.style.display = null;
+}
+
+function closeConnection() {
+  if (state.socket) {
+    state.socket.onclose = null;
+    state.socket.close();
+    state.socket = null;
+  }
+  clearTimeout(state.reconnectTimer);
 }
 
 function ticksFor(status) {
@@ -284,8 +288,8 @@ function sendSocket(payload) {
 async function finishAuth(payload) {
   saveSession(payload.token, payload.user);
   els.meName.textContent = payload.user.nickname;
-  els.auth.hidden = true;
-  els.app.hidden = false;
+  els.app.style.display = null;
+  els.auth.style.display = 'none';
   showAuthError("");
   await refreshUsers();
   renderMessages();
@@ -293,6 +297,8 @@ async function finishAuth(payload) {
 }
 
 els.form.addEventListener("submit", async (event) => {
+  closeConnection();
+
   event.preventDefault();
   const mode = event.submitter?.dataset.mode || "login";
   const nickname = document.getElementById("nickname").value.trim();
