@@ -29,14 +29,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
-                           .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                           .map(error -> String.format("%s: %s", error.getField(), error.getDefaultMessage()))
                            .collect(Collectors.joining("; "));
         return build(HttpStatus.BAD_REQUEST.value(), message);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
-        return build(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Unexpected server error");
+        return build(
+            HttpStatus.INTERNAL_SERVER_ERROR.value(), String.format("Unexpected server error: %s", ex.getMessage())
+        );
     }
 
     private ResponseEntity<ErrorResponse> build(int status, String message) {
