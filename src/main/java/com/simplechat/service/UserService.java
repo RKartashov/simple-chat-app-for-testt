@@ -8,7 +8,7 @@ import com.simplechat.security.AuthPrincipal;
 import com.simplechat.websocket.WebSocketSessionRegistry;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,28 +23,42 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserDto> listOthers(AuthPrincipal current, String query) {
-        String needle = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
-        return userRepository.findAll().stream()
-                             .filter(user -> !user.getId().equals(current.id()))
-                             .filter(user -> needle.isEmpty()
-                                 || user.getNickname().toLowerCase(Locale.ROOT).contains(needle))
+        String needle = query == null ? "" : query.trim();
+        return userRepository.findAllByIdNotAndNicknameContainingIgnoreCase(current.id(), needle)
+                             .stream()
                              .map(this::toDto)
-                             .sorted(Comparator.comparing(UserDto::online)
-                                               .reversed()
-                                               .thenComparing(UserDto::nickname, String.CASE_INSENSITIVE_ORDER))
+                             .sorted(
+                                 Comparator.comparing(UserDto::online)
+                                           .reversed()
+                                           .thenComparing(UserDto::nickname, String.CASE_INSENSITIVE_ORDER)
+                             )
                              .toList();
     }
 
     @Transactional(readOnly = true)
     public UserDto currentUser(AuthPrincipal current) {
-        User user = userRepository
-            .findById(current.id())
-            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND.value(), "User not found"));
+        User user = getById(current.id());
         return toDto(user);
     }
 
     public UserDto toDto(User user) {
         return new UserDto(user.getId(), user.getNickname(), sessionRegistry.isOnline(user.getId()));
+    }
+
+    public Optional<User> findById(Long userId) {
+        return userRepository.findById(userId);
+    }
+
+    public User getById(Long userId) {
+        return findById(userId).orElseThrow(() -> getUserNotFoundException(userId));
+    }
+
+    public boolean isUserExistsById(Long userId) {
+        return userRepository.existsById(userId);
+    }
+
+    public ApiException getUserNotFoundException(Long userId) {
+        return new ApiException(HttpStatus.NOT_FOUND.value(), String.format("User with id %s not found", userId));
     }
 
 }

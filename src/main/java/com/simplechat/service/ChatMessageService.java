@@ -4,7 +4,6 @@ import com.simplechat.domain.entity.ChatMessage;
 import com.simplechat.domain.entity.ChatMessageStatus;
 import com.simplechat.domain.entity.User;
 import com.simplechat.domain.repository.ChatMessageRepository;
-import com.simplechat.domain.repository.UserRepository;
 import com.simplechat.exception.ApiException;
 import com.simplechat.rest.dto.MessageDto;
 import java.time.Instant;
@@ -19,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatMessageService {
 
     private final ChatMessageRepository chatMessageRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Transactional
     public ChatMessage createMessage(Long senderId, Long recipientId, String text, boolean isDelivered) {
@@ -27,8 +26,8 @@ public class ChatMessageService {
             throw new ApiException(HttpStatus.BAD_REQUEST.value(), "Cannot send a message to yourself");
         }
 
-        User sender = requireUser(senderId);
-        User recipient = requireUser(recipientId);
+        User sender = userService.getById(senderId);
+        User recipient = userService.getById(recipientId);
         ChatMessage message = new ChatMessage();
         message.setSender(sender);
         message.setRecipient(recipient);
@@ -48,23 +47,21 @@ public class ChatMessageService {
     @Transactional
     public List<ChatMessage> markConversationRead(Long readerId, Long peerId) {
         List<ChatMessage> unread = chatMessageRepository.findIncomingWithStatuses(
-            peerId, readerId, List.of(ChatMessageStatus.SENT, ChatMessageStatus.DELIVERED));
+            peerId, readerId, List.of(ChatMessageStatus.SENT, ChatMessageStatus.DELIVERED)
+        );
         unread.forEach(message -> message.setStatus(ChatMessageStatus.READ));
         return chatMessageRepository.saveAll(unread);
     }
 
     @Transactional(readOnly = true)
     public List<MessageDto> history(Long currentUserId, Long peerId) {
-        requireUser(peerId);
+        if (!userService.isUserExistsById(peerId)) {
+            throw userService.getUserNotFoundException(peerId);
+        }
+
         return chatMessageRepository.findConversation(currentUserId, peerId).stream()
                                     .map(MessageDto::from)
                                     .toList();
-    }
-
-    private User requireUser(Long id) {
-        return userRepository
-            .findById(id)
-            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND.value(), "User not found"));
     }
 
 }

@@ -20,14 +20,14 @@ public class ChatRealtimeService {
     private final JsonMapper jsonMapper;
 
     @Transactional
-    public void sendChatMessage(Long fromUserId, Long toUserId, String text) {
-        boolean deliverImmediately = sessionRegistry.isOnline(toUserId);
-        ChatMessage message = messageService.createMessage(fromUserId, toUserId, text, deliverImmediately);
+    public void sendChatMessage(Long senderId, Long recipientId, String text) {
+        boolean deliverImmediately = sessionRegistry.isOnline(recipientId);
+        ChatMessage message = messageService.createMessage(senderId, recipientId, text, deliverImmediately);
 
         if (deliverImmediately) {
-            pushMessage(toUserId, message);
+            pushMessage(recipientId, message);
         }
-        pushMessage(fromUserId, message);
+        pushMessage(senderId, message);
     }
 
     @Transactional
@@ -48,8 +48,8 @@ public class ChatRealtimeService {
         }
     }
 
-    public void broadcastPresence(Long userId, boolean online) {
-        sendJson(null, WsFrame.presence(userId, online), true, userId);
+    public void broadcastPresence(Long userId, boolean isOnline) {
+        sendJson(null, WsFrame.presence(userId, isOnline), true, userId);
     }
 
     private void pushMessage(Long userId, ChatMessage message) {
