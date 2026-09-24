@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -24,20 +25,22 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        AuthPrincipal principal = principal(session);
+        ConcurrentWebSocketSessionDecorator decoratedSession = new ConcurrentWebSocketSessionDecorator(session, 1000, 1024 * 1024);
+
+        AuthPrincipal principal = getPrincipal(decoratedSession);
         try {
-            sessionRegistry.register(principal.id(), session);
+            sessionRegistry.register(principal.id(), decoratedSession);
             chatRealtimeService.deliverPending(principal.id());
             chatRealtimeService.broadcastPresence(principal.id(), true);
         } catch (Exception ex) {
             log.error("Failed to initialize WebSocket session for user {}", principal.id(), ex);
-            sendError(session, "Failed to initialize chat session");
+            sendError(decoratedSession, "Failed to initialize chat session");
         }
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-        AuthPrincipal principal = principal(session);
+        AuthPrincipal principal = getPrincipal(session);
         try {
             WsFrame frame = jsonMapper.readValue(message.getPayload(), WsFrame.class);
             String type = frame.type() == null ? "" : frame.type().toLowerCase();
@@ -96,7 +99,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         chatRealtimeService.markRead(principal.id(), peerId);
     }
 
-    private AuthPrincipal principal(WebSocketSession session) {
+    private AuthPrincipal getPrincipal(WebSocketSession session) {
         AuthPrincipal principal = (AuthPrincipal) session.getAttributes().get(PRINCIPAL_ATTR);
         if (principal == null) {
             throw new ApiException(401, "Unauthenticated WebSocket session");
@@ -106,7 +109,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     private void sendError(WebSocketSession session, String message) {
         try {
-            sessionRegistry.send(session, jsonMapper.writeValueAsString(WsFrame.error(message)));
+            sessionRegistry.sendWebSocketMessage(session, jsonMapper.writeValueAsString(WsFrame.error(message)));
         } catch (Exception ex) {
             log.warn("Failed to send WebSocket error frame", ex);
         }

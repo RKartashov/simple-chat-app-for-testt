@@ -13,6 +13,8 @@ import org.springframework.web.socket.WebSocketSession;
 @Component
 public class WebSocketSessionRegistry {
 
+    // Сессии группируются по пользователю, т.к. у одного пользователя может быть несколько активных сессий -
+    // несколько окон, устройств
     private final ConcurrentHashMap<Long, CopyOnWriteArraySet<WebSocketSession>> sessionsByUser = new ConcurrentHashMap<>();
 
     public void register(Long userId, WebSocketSession session) {
@@ -39,7 +41,7 @@ public class WebSocketSessionRegistry {
             return;
         }
         for (WebSocketSession session : sessions) {
-            send(session, payload);
+            sendWebSocketMessage(session, payload);
         }
     }
 
@@ -49,24 +51,24 @@ public class WebSocketSessionRegistry {
                 return;
             }
             for (WebSocketSession session : sessions) {
-                send(session, payload);
+                sendWebSocketMessage(session, payload);
             }
         });
     }
 
-    public void send(WebSocketSession session, String payload) {
+    public void sendWebSocketMessage(WebSocketSession session, String payload) {
         if (session == null || !session.isOpen()) {
             return;
         }
-        synchronized (session) {
-            try {
-                if (session.isOpen()) {
-                    session.sendMessage(new TextMessage(payload));
-                }
-            } catch (IOException | IllegalStateException ex) {
-                log.warn("Failed to send WebSocket payload to session {}", session.getId(), ex);
+
+        try {
+            if (session.isOpen()) {
+                session.sendMessage(new TextMessage(payload));
             }
+        } catch (IOException | IllegalStateException ex) {
+            log.warn("Failed to send WebSocket payload to session {}", session.getId(), ex);
         }
+
     }
 
 }
