@@ -1,17 +1,18 @@
 package com.simplechat.service;
 
 import com.simplechat.domain.entity.AuthSession;
+import com.simplechat.domain.entity.User;
 import com.simplechat.domain.repository.AuthSessionRepository;
 import com.simplechat.security.AuthPrincipal;
 import com.simplechat.security.JwtService;
 import com.simplechat.security.JwtService.IssuedToken;
-import com.simplechat.domain.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
-import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -34,16 +35,12 @@ public class AuthSessionService {
 
     @Transactional(readOnly = true)
     public AuthPrincipal resolvePrincipal(String token) {
-        try {
-            Claims claims = jwtService.parse(token);
-            String jti = claims.getId();
-            AuthSession session = authSessionRepository
-                    .findActiveByTokenJti(jti, Instant.now())
-                    .orElseThrow(() -> new JwtException("Session is not active"));
-            User user = session.getUser();
-            return new AuthPrincipal(user.getId(), user.getNickname(), jti);
-        } catch (JwtException | IllegalArgumentException ex) {
-            throw ex;
-        }
+        Claims claims = jwtService.parse(token);
+        String jti = claims.getId();
+        AuthSession session = authSessionRepository
+                .findActiveByTokenJti(jti, Instant.now())
+                .orElseThrow(() -> new JwtException("Session is not active"));
+        User user = session.getUser();
+        return new AuthPrincipal(user.getId(), user.getNickname(), jti);
     }
 }
