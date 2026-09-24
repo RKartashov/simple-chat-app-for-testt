@@ -3,7 +3,9 @@ package com.simplechat.websocket;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.simplechat.rest.dto.MessageDto;
+import lombok.Builder;
 
+@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record WsFrame(
@@ -17,41 +19,43 @@ public record WsFrame(
     String text,
     String status,
     String message,
-    Boolean online,
+    Boolean isOnline,
     String createdAt
 ) {
 
-    public static WsFrame chat(Long toUserId, String text) {
-        return new WsFrame("chat", null, null, toUserId, null, null, null, text, null, null, null, null);
-    }
-
     public static WsFrame message(MessageDto dto) {
-        return new WsFrame(
-            "message",
-            dto.id(),
-            dto.fromUserId(),
-            dto.toUserId(),
-            null,
-            null,
-            null,
-            dto.text(),
-            dto.status().name(),
-            null,
-            null,
-            dto.createdAt().toString()
-        );
+        return WsFrame.builder()
+                      .type("message")
+                      .id(dto.id())
+                      .fromUserId(dto.fromUserId())
+                      .toUserId(dto.toUserId())
+                      .text(dto.text())
+                      .status(dto.status().name())
+                      .createdAt(dto.createdAt().toString())
+                      .build();
     }
 
     public static WsFrame status(Long messageId, String status) {
-        return new WsFrame("status", null, null, null, null, null, messageId, null, status, null, null, null);
+        return WsFrame.builder()
+                      .type("status")
+                      .messageId(messageId)
+                      .status(status)
+                      .build();
     }
 
-    public static WsFrame presence(Long userId, boolean online) {
-        return new WsFrame("presence", null, null, null, null, userId, null, null, null, null, online, null);
+    public static WsFrame presence(Long userId, boolean isOnline) {
+        return WsFrame.builder()
+                      .type("presence")
+                      .userId(userId)
+                      .isOnline(isOnline)
+                      .build();
     }
 
     public static WsFrame error(String message) {
-        return new WsFrame("error", null, null, null, null, null, null, null, null, message, null, null);
+        return WsFrame.builder()
+                      .type("error")
+                      .message(message)
+                      .build();
     }
 
 }
