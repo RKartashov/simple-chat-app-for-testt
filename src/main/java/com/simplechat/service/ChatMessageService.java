@@ -39,7 +39,7 @@ public class ChatMessageService {
     }
 
     @Transactional
-    public List<ChatMessage> deliverPending(Long recipientId) {
+    public List<ChatMessage> markPendingAsDelivered(Long recipientId) {
         List<ChatMessage> pending = chatMessageRepository.findPendingForRecipient(recipientId, ChatMessageStatus.SENT);
         pending.forEach(message -> message.setStatus(ChatMessageStatus.DELIVERED));
         return chatMessageRepository.saveAll(pending);

@@ -12,7 +12,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -24,7 +23,6 @@ import lombok.Setter;
     })
 @Getter
 @Setter
-@NoArgsConstructor
 public class AuthSession {
 
     @Id

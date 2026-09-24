@@ -14,7 +14,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -23,11 +22,14 @@ import lombok.Setter;
     indexes = {
         @Index(name = "idx_messages_sender_recipient_created", columnList = "sender_id, recipient_id, created_at"),
         @Index(name = "idx_messages_recipient_sender_created", columnList = "recipient_id, sender_id, created_at"),
+
+        // Здесь лучше использовать partial индекс по status = 'SENT', используется для поиска неполученных сообщений
+        // и обновления их статуса. Это нельзя написать через аннотацию тут и нужен liquibase или другой мигратор
+        // (я не буду для такого мини приложения добавлять liquibase :))
         @Index(name = "idx_messages_recipient_status", columnList = "recipient_id, status")
     })
 @Getter
 @Setter
-@NoArgsConstructor
 public class ChatMessage {
 
     @Id

@@ -32,7 +32,7 @@ public class ChatRealtimeService {
 
     @Transactional
     public void deliverPending(Long recipientId) {
-        List<ChatMessage> delivered = messageService.deliverPending(recipientId);
+        List<ChatMessage> delivered = messageService.markPendingAsDelivered(recipientId);
         for (ChatMessage message : delivered) {
             pushMessage(recipientId, message);
             pushStatus(message.getSender().getId(), message);

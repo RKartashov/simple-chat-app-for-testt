@@ -25,7 +25,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        ConcurrentWebSocketSessionDecorator decoratedSession = new ConcurrentWebSocketSessionDecorator(session, 1000, 1024 * 1024);
+        ConcurrentWebSocketSessionDecorator decoratedSession = new ConcurrentWebSocketSessionDecorator(
+            session,
+            1000,
+            1024 * 1024
+        );
 
         AuthPrincipal principal = getPrincipal(decoratedSession);
         try {
