@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Chat</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div id="auth" class="auth">
+    <div class="auth-card">
+      <h1>Simple Chat</h1>
+      <p class="subtitle">Мини-мессенджер в духе ICQ</p>
+      <form id="auth-form">
+        <label>
+          Никнейм
+          <input id="nickname" name="nickname" minlength="3" maxlength="32" required pattern="[A-Za-z0-9_]+" autocomplete="username">
+        </label>
+        <label>
+          Пароль
+          <input id="password" name="password" type="password" minlength="4" maxlength="72" required autocomplete="current-password">
+        </label>
+        <p id="auth-error" class="error" hidden></p>
+        <div class="auth-actions">
+          <button type="submit" data-mode="login">Войти</button>
+          <button type="submit" data-mode="register">Регистрация</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="app" class="app" hidden>
+    <aside class="sidebar">
+      <header class="sidebar-header">
+        <div>
+          <strong id="me-name"></strong>
+          <span id="connection-status" class="status-pill offline">оффлайн</span>
+        </div>
+        <button id="logout" type="button">Выйти</button>
+      </header>
+      <input id="search" type="search" placeholder="Поиск по нику">
+      <ul id="users" class="users"></ul>
+    </aside>
+    <main class="chat">
+      <header class="chat-header">
+        <h2 id="chat-title">Выберите собеседника</h2>
+        <span id="peer-status" class="status-pill" hidden></span>
+      </header>
+      <div id="messages" class="messages"></div>
+      <form id="composer" class="composer" hidden>
+        <input id="message-text" maxlength="4000" placeholder="Сообщение..." autocomplete="off">
+        <button type="submit">Отправить</button>
+      </form>
+    </main>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
