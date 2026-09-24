@@ -9,6 +9,9 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Пользователь
+ */
 @Entity
 @Table(name = "users")
 @Getter
@@ -19,9 +22,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Имя пользователя
+     */
     @Column(nullable = false, unique = true, length = 32)
     private String nickname;
 
+    /**
+     * Хранимый хэш пароля
+     */
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 

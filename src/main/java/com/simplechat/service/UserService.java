@@ -22,7 +22,7 @@ public class UserService {
     private final WebSocketSessionRegistry sessionRegistry;
 
     @Transactional(readOnly = true)
-    public List<UserDto> listOthers(AuthPrincipal current, String query) {
+    public List<UserDto> getOtherUsers(AuthPrincipal current, String query) {
         String needle = query == null ? "" : query.trim();
         return userRepository.findAllByIdNotAndNicknameContainingIgnoreCase(current.id(), needle)
                              .stream()
@@ -36,13 +36,9 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserDto currentUser(AuthPrincipal current) {
+    public UserDto getCurrentUser(AuthPrincipal current) {
         User user = getById(current.id());
         return toDto(user);
-    }
-
-    public UserDto toDto(User user) {
-        return new UserDto(user.getId(), user.getNickname(), sessionRegistry.isOnline(user.getId()));
     }
 
     public Optional<User> findById(Long userId) {
@@ -59,6 +55,10 @@ public class UserService {
 
     public ApiException getUserNotFoundException(Long userId) {
         return new ApiException(HttpStatus.NOT_FOUND.value(), String.format("User with id %s not found", userId));
+    }
+
+    private UserDto toDto(User user) {
+        return new UserDto(user.getId(), user.getNickname(), sessionRegistry.isUserOnline(user.getId()));
     }
 
 }

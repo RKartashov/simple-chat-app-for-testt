@@ -23,7 +23,7 @@ public class ChatMessageController {
         @AuthenticationPrincipal AuthPrincipal current,
         @PathVariable Long peerId
     ) {
-        return messageService.getMessageHistory(current.id(), peerId);
+        return messageService.getMessagesHistory(current.id(), peerId);
     }
 
 }

@@ -80,7 +80,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             return;
         }
         sessionRegistry.unregister(principal.id(), session);
-        if (!sessionRegistry.isOnline(principal.id())) {
+        if (!sessionRegistry.isUserOnline(principal.id())) {
             chatRealtimeService.broadcastPresence(principal.id(), false);
         }
     }
@@ -100,7 +100,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         if (peerId == null) {
             throw new ApiException(400, "Read frame requires peerId");
         }
-        chatRealtimeService.markRead(principal.id(), peerId);
+        chatRealtimeService.readDelivered(principal.id(), peerId);
     }
 
     private AuthPrincipal getPrincipal(WebSocketSession session) {

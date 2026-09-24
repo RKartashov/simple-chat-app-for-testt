@@ -14,6 +14,9 @@ import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Сессии подключений пользователей
+ */
 @Entity
 @Table(
     name = "sessions",
@@ -29,16 +32,28 @@ public class AuthSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Пользователь
+     */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    /**
+     * Токен
+     */
     @Column(name = "token_jti", nullable = false, unique = true, length = 64)
     private String tokenJti;
 
+    /**
+     * Время начала сессии
+     */
     @Column(nullable = false)
     private Instant createdAt;
 
+    /**
+     * Время протухания сессии
+     */
     @Column(nullable = false)
     private Instant expiresAt;
 

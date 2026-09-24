@@ -23,12 +23,12 @@ public class UserController {
         @AuthenticationPrincipal AuthPrincipal current,
         @RequestParam(required = false) String query
     ) {
-        return userService.listOthers(current, query);
+        return userService.getOtherUsers(current, query);
     }
 
     @GetMapping("/me")
     public UserDto me(@AuthenticationPrincipal AuthPrincipal current) {
-        return userService.currentUser(current);
+        return userService.getCurrentUser(current);
     }
 
 }

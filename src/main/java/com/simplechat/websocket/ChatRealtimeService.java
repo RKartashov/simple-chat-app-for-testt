@@ -21,7 +21,7 @@ public class ChatRealtimeService {
 
     @Transactional
     public void sendChatMessage(Long senderId, Long recipientId, String text) {
-        boolean deliverImmediately = sessionRegistry.isOnline(recipientId);
+        boolean deliverImmediately = sessionRegistry.isUserOnline(recipientId);
         ChatMessage message = messageService.createMessage(senderId, recipientId, text, deliverImmediately);
 
         if (deliverImmediately) {
@@ -30,36 +30,54 @@ public class ChatRealtimeService {
         pushMessage(senderId, message);
     }
 
+    /**
+     * Доставить сообщения со статусом Отправлено пользователю
+     */
     @Transactional
     public void deliverPending(Long recipientId) {
         List<ChatMessage> delivered = messageService.markPendingAsDelivered(recipientId);
         for (ChatMessage message : delivered) {
             pushMessage(recipientId, message);
-            pushStatus(message.getSender().getId(), message);
+            pushMessageStatus(message.getSender().getId(), message);
         }
     }
 
+    /**
+     * Пометить доставленные читателю сообщения, как прочитанные
+     */
     @Transactional
-    public void markRead(Long readerId, Long peerId) {
+    public void readDelivered(Long readerId, Long peerId) {
         List<ChatMessage> readMessages = messageService.markMessagesAsRead(readerId, peerId);
         for (ChatMessage message : readMessages) {
-            pushStatus(message.getSender().getId(), message);
-            pushStatus(readerId, message);
+            pushMessageStatus(message.getSender().getId(), message);
+            pushMessageStatus(readerId, message);
         }
     }
 
+    /**
+     * Сообщить об обновлении статуса пользователя
+     */
     public void broadcastPresence(Long userId, boolean isOnline) {
         sendJson(null, WsFrame.presence(userId, isOnline), true, userId);
     }
 
+    /**
+     * Направить сообщение чата пользователю
+     */
     private void pushMessage(Long userId, ChatMessage message) {
         sendJson(userId, WsFrame.message(MessageDto.from(message)), false, null);
     }
 
-    private void pushStatus(Long userId, ChatMessage message) {
+    /**
+     * Сообщить об обновлении статуса сообщения
+     */
+    private void pushMessageStatus(Long userId, ChatMessage message) {
         sendJson(userId, WsFrame.status(message.getId(), message.getStatus().name()), false, null);
     }
 
+    /**
+     * Отправка данных по WebSocket
+     */
     private void sendJson(Long userId, WsFrame frame, boolean broadcast, Long exceptUserId) {
         try {
             String payload = jsonMapper.writeValueAsString(frame);

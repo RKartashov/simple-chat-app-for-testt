@@ -53,13 +53,16 @@ public class ChatMessageService {
         return chatMessageRepository.saveAll(unread);
     }
 
+    /**
+     * Получить все сообщения между читателем и другим пользователем
+     */
     @Transactional(readOnly = true)
-    public List<MessageDto> getMessageHistory(Long currentUserId, Long peerId) {
+    public List<MessageDto> getMessagesHistory(Long readerId, Long peerId) {
         if (!userService.isUserExistsById(peerId)) {
             throw userService.getUserNotFoundException(peerId);
         }
 
-        return chatMessageRepository.findConversation(currentUserId, peerId).stream()
+        return chatMessageRepository.findConversation(readerId, peerId).stream()
                                     .map(MessageDto::from)
                                     .toList();
     }

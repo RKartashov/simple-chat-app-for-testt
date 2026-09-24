@@ -32,7 +32,7 @@ public class AuthService {
         user.setNickname(request.nickname());
         user.setPasswordHash(passwordEncoder.encode(request.password()));
         userRepository.save(user);
-        return toResponse(user, authSessionService.openSession(user));
+        return getLoginResponse(user, authSessionService.openSession(user));
     }
 
     @Transactional
@@ -43,13 +43,13 @@ public class AuthService {
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new ApiException(HttpStatus.UNAUTHORIZED.value(), "Invalid nickname or password");
         }
-        return toResponse(user, authSessionService.openSession(user));
+        return getLoginResponse(user, authSessionService.openSession(user));
     }
 
-    private AuthResponse toResponse(User user, IssuedToken issued) {
+    private AuthResponse getLoginResponse(User user, IssuedToken issued) {
         return new AuthResponse(
             issued.token(),
-            new UserDto(user.getId(), user.getNickname(), sessionRegistry.isOnline(user.getId()))
+            new UserDto(user.getId(), user.getNickname(), sessionRegistry.isUserOnline(user.getId()))
         );
     }
 

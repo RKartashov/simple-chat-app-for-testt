@@ -16,6 +16,9 @@ import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Сообщения пользователей в чатах
+ */
 @Entity
 @Table(
     name = "messages",
@@ -36,21 +39,36 @@ public class ChatMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Пользователь-отправитель сообщения
+     */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "sender_id", nullable = false)
     private User sender;
 
+    /**
+     * Пользователь-получатель сообщения
+     */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "recipient_id", nullable = false)
     private User recipient;
 
+    /**
+     * Текст сообщения
+     */
     @Column(nullable = false, length = 4000)
     private String text;
 
+    /**
+     * Статус сообщения - отправлено, доставлено, прочитано
+     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 16)
     private ChatMessageStatus status;
 
+    /**
+     * Время отправки сообщения
+     */
     @Column(nullable = false)
     private Instant createdAt;
 

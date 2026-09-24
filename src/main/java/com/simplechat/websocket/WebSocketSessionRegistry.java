@@ -30,11 +30,14 @@ public class WebSocketSessionRegistry {
         );
     }
 
-    public boolean isOnline(Long userId) {
+    public boolean isUserOnline(Long userId) {
         Set<WebSocketSession> sessions = sessionsByUser.get(userId);
         return sessions != null && sessions.stream().anyMatch(WebSocketSession::isOpen);
     }
 
+    /**
+     * Отправка данных по WS конкретному пользователю
+     */
     public void sendToUser(Long userId, String payload) {
         Set<WebSocketSession> sessions = sessionsByUser.get(userId);
         if (sessions == null) {
@@ -45,6 +48,9 @@ public class WebSocketSessionRegistry {
         }
     }
 
+    /**
+     * Отправка данных по ws всем, кроме конкретного пользователя
+     */
     public void broadcast(String payload, Long exceptUserId) {
         sessionsByUser.forEach((userId, sessions) -> {
             if (exceptUserId != null && exceptUserId.equals(userId)) {
