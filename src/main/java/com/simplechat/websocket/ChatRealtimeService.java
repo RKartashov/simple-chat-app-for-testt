@@ -41,7 +41,7 @@ public class ChatRealtimeService {
 
     @Transactional
     public void markRead(Long readerId, Long peerId) {
-        List<ChatMessage> readMessages = messageService.markConversationRead(readerId, peerId);
+        List<ChatMessage> readMessages = messageService.markMessagesAsRead(readerId, peerId);
         for (ChatMessage message : readMessages) {
             pushStatus(message.getSender().getId(), message);
             pushStatus(readerId, message);

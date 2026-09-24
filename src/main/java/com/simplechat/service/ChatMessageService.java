@@ -45,7 +45,7 @@ public class ChatMessageService {
     }
 
     @Transactional
-    public List<ChatMessage> markConversationRead(Long readerId, Long peerId) {
+    public List<ChatMessage> markMessagesAsRead(Long readerId, Long peerId) {
         List<ChatMessage> unread = chatMessageRepository.findIncomingWithStatuses(
             peerId, readerId, List.of(ChatMessageStatus.SENT, ChatMessageStatus.DELIVERED)
         );
@@ -54,7 +54,7 @@ public class ChatMessageService {
     }
 
     @Transactional(readOnly = true)
-    public List<MessageDto> history(Long currentUserId, Long peerId) {
+    public List<MessageDto> getMessageHistory(Long currentUserId, Long peerId) {
         if (!userService.isUserExistsById(peerId)) {
             throw userService.getUserNotFoundException(peerId);
         }

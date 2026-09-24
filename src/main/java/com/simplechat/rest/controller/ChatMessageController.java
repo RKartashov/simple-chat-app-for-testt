@@ -19,8 +19,11 @@ public class ChatMessageController {
     private final ChatMessageService messageService;
 
     @GetMapping("/{peerId}")
-    public List<MessageDto> history(@AuthenticationPrincipal AuthPrincipal current, @PathVariable Long peerId) {
-        return messageService.history(current.id(), peerId);
+    public List<MessageDto> getMessageHistory(
+        @AuthenticationPrincipal AuthPrincipal current,
+        @PathVariable Long peerId
+    ) {
+        return messageService.getMessageHistory(current.id(), peerId);
     }
 
 }
