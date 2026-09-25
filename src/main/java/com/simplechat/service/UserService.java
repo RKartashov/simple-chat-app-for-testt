@@ -1,60 +1,71 @@
 package com.simplechat.service;
 
+import com.simplechat.common.EntityService;
 import com.simplechat.domain.entity.User;
 import com.simplechat.domain.repository.UserRepository;
-import com.simplechat.exception.ApiException;
 import com.simplechat.rest.dto.UserDto;
 import com.simplechat.security.AuthPrincipal;
 import com.simplechat.websocket.WebSocketSessionRegistry;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements EntityService<User, Long> {
 
-    private final UserRepository userRepository;
+    @Getter
+    private final UserRepository repository;
     private final WebSocketSessionRegistry sessionRegistry;
+
+    public User createUser(String nickname, String passwordHash) {
+        User user = new User();
+        user.setNickname(nickname);
+        user.setPasswordHash(passwordHash);
+
+        return save(user);
+    }
 
     @Transactional(readOnly = true)
     public List<UserDto> getOtherUsers(AuthPrincipal current, String query) {
         String needle = query == null ? "" : query.trim();
-        return userRepository.findAllByIdNotAndNicknameContainingIgnoreCase(current.id(), needle)
-                             .stream()
-                             .map(this::toDto)
-                             .sorted(
-                                 Comparator.comparing(UserDto::online)
-                                           .reversed()
-                                           .thenComparing(UserDto::nickname, String.CASE_INSENSITIVE_ORDER)
-                             )
-                             .toList();
+
+        return repository.findAllByIdNotAndNicknameContainingIgnoreCase(current.id(), needle)
+                         .stream()
+                         .map(this::toDto)
+                         .sorted(
+                             Comparator.comparing(UserDto::online)
+                                       .reversed()
+                                       .thenComparing(UserDto::nickname, String.CASE_INSENSITIVE_ORDER)
+                         )
+                         .toList();
     }
 
     @Transactional(readOnly = true)
     public UserDto getCurrentUser(AuthPrincipal current) {
         User user = getById(current.id());
+
         return toDto(user);
     }
 
-    public Optional<User> findById(Long userId) {
-        return userRepository.findById(userId);
+    @Transactional(readOnly = true)
+    public Optional<User> findByNickname(String nickname) {
+        return repository.findByNicknameIgnoreCase(nickname);
     }
 
-    public User getById(Long userId) {
-        return findById(userId).orElseThrow(() -> getUserNotFoundException(userId));
-    }
-
+    @Transactional(readOnly = true)
     public boolean isUserExistsById(Long userId) {
-        return userRepository.existsById(userId);
+        return repository.existsById(userId);
     }
 
-    public ApiException getUserNotFoundException(Long userId) {
-        return new ApiException(HttpStatus.NOT_FOUND.value(), String.format("User with id %s not found", userId));
+    @Transactional(readOnly = true)
+    public boolean existsByNickname(String nickname) {
+        return repository.existsByNicknameIgnoreCase(nickname);
     }
 
     private UserDto toDto(User user) {

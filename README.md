@@ -8,6 +8,7 @@
 
 Пакеты:
 
+- `common` — базовые классы и интерфейсы для удобного создания новых сервисов и сущностей
 - `config` — спринговые конфиги Security и WebSocket, JWT properties
 - `domain` — доменный слой - jpa сущности и репозитории
 - `exception` — единая обработка ошибок API
@@ -116,6 +117,9 @@ set JWT_SECRET=super-secret-key-that-is-long-enough
 
 ```json
 { "type": "chat", "toUserId": 2, "text": "привет" }
+```
+
+```json
 { "type": "read", "peerId": 2 }
 ```
 
@@ -135,7 +139,13 @@ set JWT_SECRET=super-secret-key-that-is-long-enough
 
 ```json
 { "type": "status", "messageId": 10, "status": "READ" }
+```
+
+```json
 { "type": "presence", "userId": 2, "online": true }
+```
+
+```json
 { "type": "error", "message": "..." }
 ```
 

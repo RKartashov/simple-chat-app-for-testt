@@ -1,5 +1,6 @@
 package com.simplechat.service;
 
+import com.simplechat.common.EntityService;
 import com.simplechat.domain.entity.ChatMessage;
 import com.simplechat.domain.entity.ChatMessageStatus;
 import com.simplechat.domain.entity.User;
@@ -8,19 +9,21 @@ import com.simplechat.exception.ApiException;
 import com.simplechat.rest.dto.MessageDto;
 import java.time.Instant;
 import java.util.List;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
-public class ChatMessageService {
+public class ChatMessageService implements EntityService<ChatMessage, Long> {
 
-    private final ChatMessageRepository chatMessageRepository;
+    @Getter
+    private final ChatMessageRepository repository;
     private final UserService userService;
 
-    @Transactional
     public ChatMessage createMessage(Long senderId, Long recipientId, String text, boolean isDelivered) {
         if (senderId.equals(recipientId)) {
             throw new ApiException(HttpStatus.BAD_REQUEST.value(), "Cannot send a message to yourself");
@@ -34,23 +37,24 @@ public class ChatMessageService {
         message.setText(text);
         message.setStatus(isDelivered ? ChatMessageStatus.DELIVERED : ChatMessageStatus.SENT);
         message.setCreatedAt(Instant.now());
-        return chatMessageRepository.save(message);
+
+        return save(message);
     }
 
-    @Transactional
     public List<ChatMessage> markPendingAsDelivered(Long recipientId) {
-        List<ChatMessage> pending = chatMessageRepository.findPendingForRecipient(recipientId, ChatMessageStatus.SENT);
+        List<ChatMessage> pending = repository.findPendingForRecipient(recipientId, ChatMessageStatus.SENT);
         pending.forEach(message -> message.setStatus(ChatMessageStatus.DELIVERED));
-        return chatMessageRepository.saveAll(pending);
+
+        return saveAll(pending);
     }
 
-    @Transactional
     public List<ChatMessage> markMessagesAsRead(Long readerId, Long peerId) {
-        List<ChatMessage> unread = chatMessageRepository.findIncomingWithStatuses(
+        List<ChatMessage> unread = repository.findIncomingWithStatuses(
             peerId, readerId, List.of(ChatMessageStatus.SENT, ChatMessageStatus.DELIVERED)
         );
         unread.forEach(message -> message.setStatus(ChatMessageStatus.READ));
-        return chatMessageRepository.saveAll(unread);
+
+        return saveAll(unread);
     }
 
     /**
@@ -59,12 +63,12 @@ public class ChatMessageService {
     @Transactional(readOnly = true)
     public List<MessageDto> getMessagesHistory(Long readerId, Long peerId) {
         if (!userService.isUserExistsById(peerId)) {
-            throw userService.getUserNotFoundException(peerId);
+            throw userService.getNotFoundByIdException(peerId);
         }
 
-        return chatMessageRepository.findConversation(readerId, peerId).stream()
-                                    .map(MessageDto::from)
-                                    .toList();
+        return repository.findConversation(readerId, peerId).stream()
+                         .map(MessageDto::from)
+                         .toList();
     }
 
 }
