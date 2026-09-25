@@ -28,28 +28,40 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login")
-                        .permitAll()
-                        .requestMatchers("/", "/index.html", "/app.js", "/styles.css", "/favicon.ico", "/error")
-                        .permitAll()
-                        .requestMatchers("/ws")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+                   .cors(Customizer.withDefaults())
+                   .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                   .authorizeHttpRequests(
+                       auth -> auth.requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login")
+                                   .permitAll()
+                                   .requestMatchers(
+                                       "/",
+                                       "/index.html",
+                                       "/app.js",
+                                       "/styles.css",
+                                       "/favicon.ico",
+                                       "/error"
+                                   )
+                                   .permitAll()
+                                   .requestMatchers("/ws")
+                                   .permitAll()
+                                   .anyRequest()
+                                   .authenticated()
+                   )
+                   .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                   .build();
     }
 
+    // Хотел убрать cors, т.к. этот же спринг отдает готовое фронт приложение, и в таком случае он как будто не нужен,
+    // но я не эксперт по http безопасности, поэтому пусть остается
     @Bean
     org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         var configuration = new org.springframework.web.cors.CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedOrigins(List.of("http://localhost:8080"));
+        configuration.setAllowedMethods(List.of("GET", "POST"));
         configuration.setAllowedHeaders(List.of("*"));
         var source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 }
