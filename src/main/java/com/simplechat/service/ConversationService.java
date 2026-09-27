@@ -9,8 +9,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ConversationService implements EntityService<Conversation, Long> {
 
@@ -25,6 +27,7 @@ public class ConversationService implements EntityService<Conversation, Long> {
                          .orElseGet(() -> createConversation(lowIdUser, highIdUser));
     }
 
+    @Transactional(readOnly = true)
     public Conversation getByUserIds(Long userOneId, Long userTwoId) {
         Long lowId = Math.min(userOneId, userTwoId);
         Long highId = Math.max(userOneId, userTwoId);

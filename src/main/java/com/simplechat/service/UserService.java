@@ -59,11 +59,6 @@ public class UserService implements EntityService<User, Long> {
     }
 
     @Transactional(readOnly = true)
-    public boolean isUserExistsById(Long userId) {
-        return repository.existsById(userId);
-    }
-
-    @Transactional(readOnly = true)
     public boolean existsByNickname(String nickname) {
         return repository.existsByNicknameIgnoreCase(nickname);
     }
