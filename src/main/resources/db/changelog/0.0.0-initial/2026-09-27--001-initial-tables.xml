@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+
+  <changeSet id="2026-09-25--001-initial-tables.001" author="r.kartashov">
+    <!-- Пользователи -->
+    <createTable schemaName="public" tableName="users">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="nickname" type="varchar(32)">
+        <constraints unique="true" nullable="true"/>
+      </column>
+      <column name="password_hash" type="varchar(255)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <!-- Диалоги -->
+    <createTable tableName="conversations">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="low_user_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="high_user_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <!-- Сообщения -->
+    <createTable schemaName="public" tableName="messages">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="sender_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="recipient_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="text" type="varchar(4000)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="status" type="varchar(16)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="timestamptz">
+        <constraints nullable="false"/>
+      </column>
+      <column name="conversation_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <!-- Сессии -->
+    <createTable schemaName="public" tableName="sessions">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="user_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="token_jti" type="varchar(64)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="created_at" type="timestamptz">
+        <constraints nullable="false"/>
+      </column>
+      <column name="expires_at" type="timestamptz">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+
+
+  <changeSet id="2026-09-25--001-initial-tables.002.indices" author="r.kartashov">
+    <!-- Сообщения -->
+    <!-- Для выборки полной истории диалога -->
+    <createIndex tableName="messages" indexName="idx_messages_conversation_created">
+      <column name="conversation_id"/>
+      <column name="created_at"/>
+      <column name="id"/>
+    </createIndex>
+    <!-- Индекс для выборки недоставленных сообщений (пока пользователь был оффлайн) -->
+    <sql>
+      CREATE INDEX idx_messages_pending_for_recipient
+        ON messages (recipient_id, created_at, id) WHERE status = 'SENT';
+    </sql>
+    <!-- Индекс для выборки непрочитанных сообщений в диалоге у получателя -->
+    <sql>
+      CREATE INDEX idx_messages_unread_in_conversation
+        ON messages (conversation_id, recipient_id) WHERE status &lt;&gt; 'READ';
+    </sql>
+
+    <!-- Сессии -->
+    <createIndex tableName="sessions" indexName="idx_sessions_jti" unique="true">
+      <column name="token_jti"/>
+    </createIndex>
+    <createIndex tableName="sessions" indexName="idx_sessions_user">
+      <column name="user_id"/>
+    </createIndex>
+  </changeSet>
+
+
+
+  <changeSet id="2026-09-25--001-initial-tables.003.fkeys" author="r.kartashov">
+    <!-- Сообщения -> пользователи -->
+    <addForeignKeyConstraint
+      constraintName="fk_messages_sender_id"
+      baseTableName="messages"
+      baseColumnNames="sender_id"
+      referencedTableName="users"
+      referencedColumnNames="id"
+      onDelete="NO ACTION"/>
+    <addForeignKeyConstraint
+      constraintName="fk_messages_recipient_id"
+      baseTableName="messages"
+      baseColumnNames="recipient_id"
+      referencedTableName="users"
+      referencedColumnNames="id"
+      onDelete="NO ACTION"/>
+
+    <!-- Диалоги -> пользователи -->
+    <addForeignKeyConstraint
+      constraintName="fk_conversations_low_user_id"
+      baseTableName="conversations"
+      baseColumnNames="low_user_id"
+      referencedTableName="users"
+      referencedColumnNames="id"
+      onDelete="CASCADE"/>
+    <addForeignKeyConstraint
+      constraintName="fk_conversations_high_user_id"
+      baseTableName="conversations"
+      baseColumnNames="high_user_id"
+      referencedTableName="users"
+      referencedColumnNames="id"
+      onDelete="CASCADE"/>
+
+    <!-- Сообщения -> диалоги -->
+    <addForeignKeyConstraint
+      constraintName="fk_messages_conversation"
+      baseTableName="messages"
+      baseColumnNames="conversation_id"
+      referencedTableName="conversations"
+      referencedColumnNames="id"
+      onDelete="CASCADE"/>
+  </changeSet>
+
+
+
+  <changeSet id="2026-09-25--001-initial-tables.004.constraints" author="r.kartashov">
+    <!-- Диалоги - пара пользователей должна быть уникальна и без зеркальных копий -->
+    <addUniqueConstraint constraintName="uk_conversations_low_high_user_id_pair" tableName="conversations"
+      columnNames="low_user_id, high_user_id"/>
+
+    <sql>
+      ALTER TABLE conversations
+        ADD CONSTRAINT chk_conversations_pair_order
+          CHECK (low_user_id &lt; high_user_id);
+    </sql>
+  </changeSet>
+
+</databaseChangeLog>

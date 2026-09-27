@@ -8,10 +8,13 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/simplechat}
     username: ${SPRING_DATASOURCE_USERNAME:chat}
     password: ${SPRING_DATASOURCE_PASSWORD:chat}
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         jdbc:

@@ -6,7 +6,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -18,12 +17,7 @@ import lombok.Setter;
  * Сессии подключений пользователей
  */
 @Entity
-@Table(
-    name = "sessions",
-    indexes = {
-        @Index(name = "idx_sessions_jti", columnList = "token_jti", unique = true),
-        @Index(name = "idx_sessions_user", columnList = "user_id")
-    })
+@Table(name = "sessions")
 @Getter
 @Setter
 public class AuthSession {

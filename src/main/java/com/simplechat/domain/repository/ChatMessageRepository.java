@@ -1,8 +1,6 @@
 package com.simplechat.domain.repository;
 
 import com.simplechat.domain.entity.ChatMessage;
-import com.simplechat.domain.entity.ChatMessageStatus;
-import java.util.Collection;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,38 +8,26 @@ import org.springframework.data.repository.query.Param;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
-    @Query("""
-        select m from ChatMessage m
-        join fetch m.sender
-        join fetch m.recipient
-        where (m.sender.id = :leftUserId and m.recipient.id = :rightUserId)
-           or (m.sender.id = :rightUserId and m.recipient.id = :leftUserId)
-        order by m.createdAt asc, m.id asc
-        """)
-    List<ChatMessage> findConversation(@Param("leftUserId") Long leftUserId, @Param("rightUserId") Long rightUserId);
+    List<ChatMessage> findAllByConversationIdOrderByCreatedAtAscIdAsc(Long conversationId);
 
     @Query("""
         select m from ChatMessage m
         join fetch m.sender
-        where m.recipient.id = :recipientId and m.status = :status
+        where m.recipient.id = :recipientId and m.status = 'SENT'
         order by m.createdAt asc, m.id asc
         """)
-    List<ChatMessage> findPendingForRecipient(
-        @Param("recipientId") Long recipientId,
-        @Param("status") ChatMessageStatus status
-    );
+    List<ChatMessage> findPendingForRecipient(@Param("recipientId") Long recipientId);
 
     @Query("""
         select m from ChatMessage m
         join fetch m.sender
-        where m.sender.id = :senderId
+        where m.conversation.id = :conversationId
           and m.recipient.id = :recipientId
-          and m.status in :statuses
+          and m.status <> 'READ'
         """)
-    List<ChatMessage> findIncomingWithStatuses(
-        @Param("senderId") Long senderId,
-        @Param("recipientId") Long recipientId,
-        @Param("statuses") Collection<ChatMessageStatus> statuses
+    List<ChatMessage> findUnreadInConversation(
+        @Param("conversationId") Long conversationId,
+        @Param("recipientId") Long recipientId
     );
 
 }
