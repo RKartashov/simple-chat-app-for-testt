@@ -20,6 +20,10 @@ public class ConversationService implements EntityService<Conversation, Long> {
     private final ConversationRepository repository;
 
     public Conversation ensureConversation(User userOne, User userTwo) {
+        if (userOne.equals(userTwo)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST.value(), "Cannot create a conversation with yourself");
+        }
+
         User lowIdUser = userOne.getId() < userTwo.getId() ? userOne : userTwo;
         User highIdUser = lowIdUser == userOne ? userTwo : userOne;
 
